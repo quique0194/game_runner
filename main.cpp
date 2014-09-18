@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cmath>
 #include <GL/glut.h>
 
 #define ECHAP 27
@@ -22,7 +23,7 @@ GLvoid initGL() {
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
 
-    glClearColor(0, 0, 0, 0);
+    glClearColor(0, 0.3, 0.7, 0);
 }
 
 double plataforma_pos = -50;
@@ -31,6 +32,8 @@ double plataforma_pos_delta = -1;
 double hero_pos_y = 0;
 double hero_pos_y_delta = 1;
 double hero_pos_y_max = 20;
+double hero_pos_x = -sqrt(hero_pos_y_max-0.1);  // -0.1 to correct error
+double hero_pos_x_delta = 0.2;
 
 bool hero_jumping = false;
 
@@ -38,15 +41,13 @@ void draw_hero() {
     glLoadIdentity();
     glColor3f(1,1,1);
     if (hero_jumping) {
-        hero_pos_y += hero_pos_y_delta;
-        // si llega hasta arriba
-        if (hero_pos_y >= hero_pos_y_max) {
-            hero_pos_y_delta = -hero_pos_y_delta;
-        }
-        // si cae al piso
-        if (hero_pos_y <= 0) {
-            hero_pos_y_delta = -hero_pos_y_delta;
+        printf("jumping\n");
+        hero_pos_y = hero_pos_y_max - hero_pos_x*hero_pos_x;
+        hero_pos_x += hero_pos_x_delta;
+        if (hero_pos_y < 0) {
+            printf("te cagas\n");
             hero_pos_y = 0;
+            hero_pos_x = -sqrt(hero_pos_y_max-0.1);  // -0.1 to correct error
             hero_jumping = false;
         }
     }

@@ -2,6 +2,8 @@
 #include <cmath>
 #include <GL/glut.h>
 
+#include "hero.h"
+
 #define ECHAP 27
 
 
@@ -26,34 +28,9 @@ GLvoid initGL() {
     glClearColor(0, 0.3, 0.7, 0);
 }
 
+
 double plataforma_pos = -50;
 double plataforma_pos_delta = -1;
-
-double hero_pos_y = 0;
-double hero_pos_y_delta = 1;
-double hero_pos_y_max = 20;
-double hero_pos_x = -sqrt(hero_pos_y_max-0.1);  // -0.1 to correct error
-double hero_pos_x_delta = 0.2;
-
-bool hero_jumping = false;
-
-void draw_hero() {
-    glLoadIdentity();
-    glColor3f(1,1,1);
-    if (hero_jumping) {
-        printf("jumping\n");
-        hero_pos_y = hero_pos_y_max - hero_pos_x*hero_pos_x;
-        hero_pos_x += hero_pos_x_delta;
-        if (hero_pos_y < 0) {
-            printf("te cagas\n");
-            hero_pos_y = 0;
-            hero_pos_x = -sqrt(hero_pos_y_max-0.1);  // -0.1 to correct error
-            hero_jumping = false;
-        }
-    }
-    glTranslated(0, hero_pos_y, 0);
-    glutSolidTeapot(4);
-}
 
 void draw_plataforma() {
     glLoadIdentity();
@@ -83,6 +60,8 @@ void draw_plataforma() {
     }
 }
 
+HeroStateManager hero_state_manager;
+
 GLvoid window_display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -92,7 +71,7 @@ GLvoid window_display() {
     glMatrixMode(GL_MODELVIEW);
 
     draw_plataforma();
-    draw_hero();
+    hero_state_manager.draw();
 
     glutSwapBuffers();
 
@@ -112,7 +91,9 @@ GLvoid window_reshape(GLsizei width, GLsizei height) {
 GLvoid window_key(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            hero_jumping = true;
+            if (hero_state_manager.get_state() != HERO_JUMPING){
+                hero_state_manager.set_state(HERO_JUMPING);
+            }
             break;
 
         case GLUT_KEY_DOWN:

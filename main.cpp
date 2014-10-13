@@ -89,7 +89,8 @@ GLvoid initGL() {
 
     //enable material : try without it
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_COLOR_MATERIAL);
+    // Commenting this line fixes color in the hero's sprite
+    // glEnable(GL_COLOR_MATERIAL);
 
     //glClearColor(0, 0.3, 0.7, 0);
     glClearColor(0.4f, 0.4f, 0.4f, 0.2f); //(R, G, B, transparencia) en este caso un fondo negro

@@ -9,6 +9,11 @@ using std::vector;
 #include "./File.h"
 #include "./utils.h"
 
+#define images_path "./images/"
+
+#include <iostream>
+using namespace std;
+
 /*
     We asume we have a 800x600 window
     Then we divide this window in 16x12 regions

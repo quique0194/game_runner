@@ -81,7 +81,7 @@ GLvoid initGL() {
     glEnable(GL_LIGHTING);
     //light 0 "on": try without it
     glEnable(GL_LIGHT0);
-
+	glEnable(GL_TEXTURE_2D);
     //shading model : try GL_FLAT
     glShadeModel(GL_SMOOTH);
 
@@ -91,7 +91,9 @@ GLvoid initGL() {
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
 
-    glClearColor(0, 0.3, 0.7, 0);
+    //glClearColor(0, 0.3, 0.7, 0);
+    glClearColor(0.4f, 0.4f, 0.4f, 0.2f); //(R, G, B, transparencia) en este caso un fondo negro
+
 }
 
 int main(int argc, char **argv) {
@@ -106,6 +108,13 @@ int main(int argc, char **argv) {
 
 
     initGL();
+    //hijita
+    sprites = TextureManager::Inst()->LoadTexture("hero_sprites.png", GL_BGRA_EXT, GL_RGBA);
+    cout<<"cargo:"<<(images_path  "hero_sprites.png")<<endl;
+    cout<<"s:"<<sprites<<endl;
+    
+    
+    
 
     glutDisplayFunc(&window_display);
     glutReshapeFunc(&window_reshape);

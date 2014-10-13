@@ -9,6 +9,7 @@
 #ifndef TextureManager_H
 #define TextureManager_H
 
+//#include <windows.h>
 #include <GL/glut.h>
 
 #include <FreeImage.h>

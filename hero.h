@@ -3,6 +3,9 @@
 
 #include "Plataform.h"
 #include "TextureManager.h"
+
+
+
 // HERO STATES
 #define HERO_RUNNING 1
 #define HERO_JUMPING 2
@@ -12,6 +15,9 @@
 #define HERO_SPEED (3.0)
 
 #define GRAVITY (-0.5)      // gravity acceleration
+int POWER = 0;
+
+
 
 //hijita  
 GLint hero_sprites;
@@ -65,6 +71,8 @@ GLint hero_sprites;
                 (x,y)
 
 */
+
+                
 
 
 class HeroStateBase {
@@ -127,6 +135,7 @@ class HeroStateBase {
             double step = height/4;
             for (int i = 0; i < 5; ++i) {
                 if (plataform->collect_object_in(x+1, y+i*step)) {
+                    POWER=POWER + 10;
                     return true;
                 }                
             }
@@ -137,6 +146,7 @@ class HeroStateBase {
             double step = width/4;
             for (int i = 0; i < 5; ++i) {
                 if (plataform->collect_object_in(x-i*step, y-1)) {
+                    POWER=POWER +10;
                     return true;
                 }
             }
@@ -206,6 +216,8 @@ class HeroStateBase {
             recalculate_y();
         }
         void draw() {
+            char* bonus = int_to_char(POWER);
+            print(x+500, 570,0, bonus);
             pre_draw();
             draw_hero();
         }

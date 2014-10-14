@@ -135,6 +135,8 @@ class HeroStateBase {
             double step = height/4;
             for (int i = 0; i < 5; ++i) {
                 if (plataform->collect_object_in(x+1, y+i*step)) {
+                	cout<<"moneda1!"<<endl;
+                    play_hero_sound(HERO_COIN_SOUND);                    
                     POWER=POWER + 10;
                     return true;
                 }                
@@ -146,6 +148,8 @@ class HeroStateBase {
             double step = width/4;
             for (int i = 0; i < 5; ++i) {
                 if (plataform->collect_object_in(x-i*step, y-1)) {
+                    cout<<"moneda2!"<<endl;
+                    play_hero_sound(HERO_COIN_SOUND);                    
                     POWER=POWER +10;
                     return true;
                 }
@@ -288,6 +292,8 @@ class HeroStateHitting: public HeroStateBase {
             timer = timebase =  anim = i = 0;
             xsprite = 0.1678;
             ysprite = 0;
+            //function in gamesound.h
+			play_hero_sound(HERO_HIT_SOUND) ;
         }
         // override
         void recalculate_x() {
@@ -406,7 +412,9 @@ class HeroStateJumping: public HeroStateBase {
             //hijita we reset each var whe a new 
             timer = timebase =  anim = i = 0;
             xsprite = 0.1678;
-            ysprite = 0.5;           
+            ysprite = 0.5; 
+            
+   			play_hero_sound(HERO_JUMP_SOUND);                  
         }
         void jump() {
 
@@ -446,8 +454,7 @@ class HeroStateJumping: public HeroStateBase {
             if (i == nhero_sprites) i = 0;            
             int ipos=nhero_sprites-i;
             glBindTexture(GL_TEXTURE_2D, hero_sprites);
-            //glColor3f(1, 100/255.0, 0);
-            cout<<"load texture! ipos:"<<ipos<<" x:"<<xsprite*ipos<<"  Y:"<<ysprite<<endl;
+            
             glBegin(GL_QUADS);
                 //coordenadas de textura
             	glTexCoord2f(0.0f + xsprite*ipos, ysprite);            
@@ -489,7 +496,9 @@ class HeroStateSliding: public HeroStateBase {
             //hijita we reset each var whe a new 
             timer = timebase =  anim = i = 0;
             xsprite = 0.1678;
-            ysprite = 0.78;           
+            ysprite = 0.78;   
+            
+  			play_hero_sound(HERO_SLICE_SOUND);        
 
         }
         // override

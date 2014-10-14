@@ -1,0 +1,7 @@
+instalar sfml para reproducir sonidos
+
+http://www.sfml-dev.org/tutorials/2.0/start-linux.php
+
+sudo apt-get install libsfml-dev
+
+g++ main.cpp -lsfml-audio -lsfml-window -lsfml-system

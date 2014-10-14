@@ -9,6 +9,7 @@ using std::vector;
 #include "./File.h"
 #include "./utils.h"
 #include "TextureManager.h"
+#include "gamesound.h"
 
 #define images_path "./images/"
 
@@ -23,6 +24,7 @@ GLint pipe_texture;
 GLint pipe_body_texture;
 GLint villain_texture;
 GLint sky_texture;
+
 
 
 

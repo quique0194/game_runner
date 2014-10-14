@@ -142,7 +142,10 @@ int main(int argc, char **argv) {
     iron_texture = TextureManager::Inst()->LoadTexture("iron.jpg",GL_BGR_EXT, GL_RGB);
     sky_texture = TextureManager::Inst()->LoadTexture("sky.jpg",GL_BGR_EXT, GL_RGB);
     
-    
+	//play the main sound :3
+    init_sound();
+	play_track();
+
     glutMainLoop();
 
     return 1;

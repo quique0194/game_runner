@@ -7,13 +7,14 @@
 #define HERO_RUNNING 1
 #define HERO_JUMPING 2
 #define HERO_SLIDING 3
+#define HERO_HITTING 4
 
 #define HERO_SPEED (3.0)
 
 #define GRAVITY (-0.5)      // gravity acceleration
 
 //hijita  
-GLint sprites;
+GLint hero_sprites;
 
 
 /*
@@ -83,7 +84,8 @@ class HeroStateBase {
             // check 5 points in the base
             double step = width/4;
             for (int i = 0; i < 5; ++i) {
-                if (plataform->solid_in(x-i*step, y-1)) {
+                string object = plataform->object_in(x-i*step, y-1);
+                if (plataform->is_solid(object)) {
                     return true;
                 }
             }
@@ -93,17 +95,73 @@ class HeroStateBase {
             // check 5 points in the front
             double step = height/4;
             for (int i = 0; i < 5; ++i) {
-                if (plataform->solid_in(x+1, y+i*step)) {
+                string object = plataform->object_in(x+1, y+i*step);
+                if (plataform->is_solid(object)) {
                     return true;
                 }
             }
             return false;
         }
+        bool hit_front_object() {
+            // hit 5 points in the front
+            double step = height/4;
+            for (int i = 0; i < 5; ++i) {
+                if (plataform->hit_object_in(x+1, y+i*step)) {
+                    return true;
+                }                
+            }
+            return false;
+        }
+        bool hit_base_object() {
+            // check 5 points in the base
+            double step = width/4;
+            for (int i = 0; i < 5; ++i) {
+                if (plataform->hit_object_in(x-i*step, y-1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool collect_front_object() {
+            // hit 5 points in the front
+            double step = height/4;
+            for (int i = 0; i < 5; ++i) {
+                if (plataform->collect_object_in(x+1, y+i*step)) {
+                    return true;
+                }                
+            }
+            return false;
+        }
+        bool collect_base_object() {
+            // check 5 points in the base
+            double step = width/4;
+            for (int i = 0; i < 5; ++i) {
+                if (plataform->collect_object_in(x-i*step, y-1)) {
+                    return true;
+                }
+            }
+            return false;   
+        }
+        bool collect() {
+            return collect_base_object() || collect_front_object();
+        }
         bool will_land() {
             // check 5 points in the base
             double step = width/4;
             for (int i = 0; i < 5; ++i) {
-                if (plataform->solid_in(x-i*step, y+velocity-1)) {
+                string object = plataform->object_in(x-i*step, y+velocity-1);
+                if (plataform->is_solid(object)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool colliding_with_roof() {
+            // check 5 points in the roof
+            double step = width/4;
+            for (int i = 0; i < 5; ++i) {
+                string object = plataform->object_in(x-i*step, y+height+1);
+                if (plataform->is_solid(object)) {
                     return true;
                 }
             }
@@ -113,24 +171,27 @@ class HeroStateBase {
             // check 5 points in the front
             double step = height/4;
             for (int i = 0; i < 5; ++i) {
-                if (plataform->solid_in(x+HERO_SPEED, y+i*step)) {
+                string object = plataform->object_in(x+HERO_SPEED, y+i*step);
+                if (plataform->is_solid(object)) {
                     return true;
                 }
             }
             return false;
         }
-        void recalculate_position() {
+        virtual void recalculate_y() {
             if (!over_floor() || velocity > 0) {
                 if (will_land()) {
                     y = (int)y - (int)y % 50;
-                    cout<<"rpos: " << y << endl;
+                    velocity = 0;
+                } else if (colliding_with_roof() && velocity > 0) {
                     velocity = 0;
                 } else {
                     y += velocity;
                     velocity += GRAVITY;
                 }
             }
-
+        }
+        virtual void recalculate_x() {
             if (!colliding()){
                 if (will_collide()) {
                     x += 49 - ((int)x%50);
@@ -138,6 +199,11 @@ class HeroStateBase {
                     x += HERO_SPEED;
                 }
             }
+        }
+        void recalculate_position() {
+            collect();
+            recalculate_x();
+            recalculate_y();
         }
         void draw() {
             pre_draw();
@@ -149,7 +215,7 @@ class HeroStateBase {
         // action when user press up arrow
         // jump by default
         virtual void jump() {
-            velocity = 12;
+            velocity = 13;
             next_state = HERO_JUMPING;
         }
         // override
@@ -157,6 +223,12 @@ class HeroStateBase {
         // slide by default
         virtual void slide() {
             next_state = HERO_SLIDING;
+        }
+        // override
+        // action when user press space
+        // hit by default
+        virtual void hit() {
+            next_state = HERO_HITTING;
         }
         // override
         // return next state
@@ -172,7 +244,7 @@ class HeroStateBase {
         static double y;           // position in Y
         
         
-        //var for the sprites :3
+        //var for the hero_sprites :3
         int timer;
         int timebase;
         int anim;
@@ -193,12 +265,75 @@ double HeroStateBase::x = 150;
 double HeroStateBase::y = 100;
 
 
+class HeroStateHitting: public HeroStateBase {
+    private:
+        int nhero_sprites;
+    public:
+        HeroStateHitting(Plataform* plataform): 
+            HeroStateBase(plataform), nhero_sprites(5) {
+            next_state = HERO_HITTING;
+            //we reset each var whe a new 
+            timer = timebase =  anim = i = 0;
+            xsprite = 0.1678;
+            ysprite = 0;
+        }
+        // override
+        void recalculate_x() {
+            hit_front_object();
+            HeroStateBase::recalculate_x();
+        }
+        // override
+        // draw hero sprite
+        void draw_hero() {
+        
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//funcion de transparencia
+            glEnable(GL_BLEND);//utilizar transparencia                
+            // delta timer
+            timer = glutGet(GLUT_ELAPSED_TIME); // recupera el
+            int dt = timer -timebase;
+            timebase = timer;
+            //duracion de la animacion entre dos cambios de Sprite
+            anim += dt;
+            // si el tiempo de animacion dura mas 0.15s cambiamos de sprite
+            if (anim / 1000.0 > 0.15)
+            {
+                i++;
+                anim = 0.0;
+            }
+            if (i == nhero_sprites) {
+                i = 0;
+                next_state = HERO_RUNNING;            
+            }
+            int ipos=nhero_sprites-i;
+            glBindTexture(GL_TEXTURE_2D, hero_sprites);                         
+        
+        
+        
+            //glColor3f(1, 100/255.0, 0);
+            glBegin(GL_QUADS);
+                //coordenadas de textura
+                glTexCoord2f(0.0f + xsprite*ipos, ysprite);            
+                glVertex3d(-50, 0, 10);
+                
+                glTexCoord2f(0.0f + xsprite*ipos, ysprite+0.25);
+                glVertex3d(-50, 100, 10);
+                
+                glTexCoord2f(xsprite*(ipos + 1.0), ysprite+0.25);
+                glVertex3d(0, 100, 10);
+                
+                glTexCoord2f(xsprite*(ipos + 1.0), ysprite);
+                glVertex3d(0, 0, 10);
+            glEnd();
+            glDisable(GL_BLEND);    
+        }
+};
+
 class HeroStateRunning: public HeroStateBase {
     private:
-        int nsprites;
+        int nhero_sprites;
     public:
         HeroStateRunning(Plataform* plataform): 
-            HeroStateBase(plataform), nsprites(6) {
+            HeroStateBase(plataform), nhero_sprites(6) {
             
             //we reset each var whe a new 
             timer = timebase =  anim = i = 0;
@@ -223,9 +358,9 @@ class HeroStateRunning: public HeroStateBase {
                 i++;
                 anim = 0.0;
             }
-            if (i == nsprites) i = 0;            
-            int ipos=nsprites-i;
-            glBindTexture(GL_TEXTURE_2D, sprites);                         
+            if (i == nhero_sprites) i = 0;            
+            int ipos=nhero_sprites-i;
+            glBindTexture(GL_TEXTURE_2D, hero_sprites);                         
         
         
         
@@ -233,16 +368,16 @@ class HeroStateRunning: public HeroStateBase {
             glBegin(GL_QUADS);
                 //coordenadas de textura
             	glTexCoord2f(0.0f + xsprite*ipos, ysprite);            
-                glVertex3d(-50, 0, 0);
+                glVertex3d(-50, 0, 10);
                 
                	glTexCoord2f(0.0f + xsprite*ipos, ysprite+0.25);
-                glVertex3d(-50, 100, 0);
+                glVertex3d(-50, 100, 10);
                 
                	glTexCoord2f(xsprite*(ipos + 1.0), ysprite+0.25);
-                glVertex3d(0, 100, 0);
+                glVertex3d(0, 100, 10);
                 
                	glTexCoord2f(xsprite*(ipos + 1.0), ysprite);
-                glVertex3d(0, 0, 0);
+                glVertex3d(0, 0, 10);
             glEnd();
             glDisable(GL_BLEND);    
         }
@@ -250,10 +385,10 @@ class HeroStateRunning: public HeroStateBase {
 
 class HeroStateJumping: public HeroStateBase {
     private:
-        int nsprites;
+        int nhero_sprites;
     public:
         HeroStateJumping(Plataform* plataform): 
-                HeroStateBase(plataform), nsprites(5) {
+                HeroStateBase(plataform), nhero_sprites(5) {
             next_state = HERO_JUMPING;
             
             //hijita we reset each var whe a new 
@@ -264,8 +399,18 @@ class HeroStateJumping: public HeroStateBase {
         void jump() {
 
         }
+        void hit() {
+            
+        }
         void slide() {
 
+        }
+        void recalculate_y() {
+            printf("hit base\n");
+            HeroStateBase::recalculate_y();
+            if (hit_base_object()) {
+                velocity = 5;
+            }
         }
         // override
         // draw hero sprite
@@ -286,24 +431,24 @@ class HeroStateJumping: public HeroStateBase {
                 anim = 0.0;
             }
 
-            if (i == nsprites) i = 0;            
-            int ipos=nsprites-i;
-            glBindTexture(GL_TEXTURE_2D, sprites);
+            if (i == nhero_sprites) i = 0;            
+            int ipos=nhero_sprites-i;
+            glBindTexture(GL_TEXTURE_2D, hero_sprites);
             //glColor3f(1, 100/255.0, 0);
             cout<<"load texture! ipos:"<<ipos<<" x:"<<xsprite*ipos<<"  Y:"<<ysprite<<endl;
             glBegin(GL_QUADS);
                 //coordenadas de textura
             	glTexCoord2f(0.0f + xsprite*ipos, ysprite);            
-                glVertex3d(-50, 0, 0);
+                glVertex3d(-50, 0, 10);
                 
                	glTexCoord2f(0.0f + xsprite*ipos, ysprite+0.25);
-                glVertex3d(-50, 100, 0);
+                glVertex3d(-50, 100, 10);
 
                	glTexCoord2f(xsprite*(ipos + 1.0), ysprite+0.25);
-                glVertex3d(0, 100, 0);
+                glVertex3d(0, 100, 10);
                 
                	glTexCoord2f(xsprite*(ipos + 1.0), ysprite);
-                glVertex3d(0, 0, 0);
+                glVertex3d(0, 0, 10);
             glEnd();
             
             glDisable(GL_BLEND);
@@ -321,10 +466,10 @@ class HeroStateJumping: public HeroStateBase {
 
 class HeroStateSliding: public HeroStateBase {
     private:
-        int nsprites;
+        int nhero_sprites;
     public:
         HeroStateSliding(Plataform* plataform): 
-                HeroStateBase(plataform), nsprites(2) {
+                HeroStateBase(plataform), nhero_sprites(2) {
             next_state = HERO_SLIDING;
             width = 99;
             height = 49;
@@ -354,30 +499,33 @@ class HeroStateSliding: public HeroStateBase {
                 anim = 0.0;
             }
 
-            if (i == nsprites) i = 0;            
-            int ipos=nsprites-i+3;
-            glBindTexture(GL_TEXTURE_2D, sprites);
+            if (i == nhero_sprites) i = 0;            
+            int ipos=nhero_sprites-i+3;
+            glBindTexture(GL_TEXTURE_2D, hero_sprites);
             //glColor3f(1, 100/255.0, 0);
        
             glBegin(GL_QUADS);
             
             //coordenadas de textura
             	glTexCoord2f(0.0f + xsprite*ipos, ysprite);            
-                glVertex3d(-100, 0, 0);
+                glVertex3d(-100, 0, 10);
                 
                	glTexCoord2f(0.0f + xsprite*ipos, ysprite+0.22);
-                glVertex3d(-100, 50, 0);
+                glVertex3d(-100, 50, 10);
                 
                	glTexCoord2f(xsprite*(ipos + 1.0), ysprite+0.22);
-                glVertex3d(0, 50, 0);
+                glVertex3d(0, 50, 10);
                 
                	glTexCoord2f(xsprite*(ipos + 1.0), ysprite);
-                glVertex3d(0, 0, 0);
+                glVertex3d(0, 0, 10);
 
             glEnd();
             glDisable(GL_BLEND);
         }
         void slide() {
+
+        }
+        void hit() {
 
         }
 };
@@ -406,6 +554,9 @@ class HeroStateManager {
                     break;
                 case HERO_SLIDING:
                     state = new HeroStateSliding(plataform);
+                    break;
+                case HERO_HITTING:
+                    state = new HeroStateHitting(plataform);
                     break;
             }
         }

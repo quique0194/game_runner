@@ -29,8 +29,8 @@ GLvoid window_display() {
     glMatrixMode(GL_MODELVIEW);
 
 
+    plataform.draw(x);    
     hero_state_manager.draw();
-    plataform.draw();    
         
     glutSwapBuffers();
 
@@ -47,7 +47,7 @@ GLvoid window_reshape(GLsizei width, GLsizei height) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-GLvoid window_key(int key, int x, int y) {
+GLvoid special_key(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP:
             hero_state_manager.get_state()->jump();
@@ -61,6 +61,24 @@ GLvoid window_key(int key, int x, int y) {
             break;
 
         case GLUT_KEY_RIGHT:
+            break;
+
+        case 32:
+            printf("SPACE");
+            hero_state_manager.get_state()->hit();
+            break;
+
+        default:
+            printf("La tecla %d no hace nada.\n", key);
+            break;
+    }
+}
+
+GLvoid keyboard_key(unsigned char key, int x, int y) {
+    switch (key) {
+        case 32:
+            printf("SPACE");
+            hero_state_manager.get_state()->hit();
             break;
 
         default:
@@ -107,14 +125,22 @@ int main(int argc, char **argv) {
     initGL();
     glutDisplayFunc(&window_display);
     glutReshapeFunc(&window_reshape);
-    glutSpecialFunc(&window_key);
+
+    glutKeyboardFunc(&keyboard_key);
+    glutSpecialFunc(&special_key);
     //function called on each frame
     glutIdleFunc(&window_idle);
     
     //preparacion de las texturas
-    sprites = TextureManager::Inst()->LoadTexture("hero_sprites.png", GL_BGRA_EXT, GL_RGBA);
+    hero_sprites = TextureManager::Inst()->LoadTexture("hero_sprites.png", GL_BGRA_EXT, GL_RGBA);
+
+    coin_texture = TextureManager::Inst()->LoadTexture("coin.png",GL_BGRA_EXT, GL_RGBA);
+    pipe_texture = TextureManager::Inst()->LoadTexture("pipe.png",GL_BGRA_EXT, GL_RGBA);
+    villain_texture = TextureManager::Inst()->LoadTexture("villain.png",GL_BGRA_EXT, GL_RGBA);
+    pipe_body_texture = TextureManager::Inst()->LoadTexture("pipe_body.png",GL_BGRA_EXT, GL_RGBA);
     floor_texture = TextureManager::Inst()->LoadTexture("floor.png",GL_BGR_EXT, GL_RGB);
-    air_texture = TextureManager::Inst()->LoadTexture("aire.jpg",GL_BGR_EXT, GL_RGB);
+    iron_texture = TextureManager::Inst()->LoadTexture("iron.jpg",GL_BGR_EXT, GL_RGB);
+    sky_texture = TextureManager::Inst()->LoadTexture("sky.jpg",GL_BGR_EXT, GL_RGB);
     
     
     glutMainLoop();

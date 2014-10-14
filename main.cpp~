@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     //preparacion de las texturas
     sprites = TextureManager::Inst()->LoadTexture("hero_sprites.png", GL_BGRA_EXT, GL_RGBA);
     floor_texture = TextureManager::Inst()->LoadTexture("floor.png",GL_BGR_EXT, GL_RGB);
-    air_texture = TextureManager::Inst()->LoadTexture("aire.jpg",GL_BGR_EXT, GL_RGB);
+    air_texture = TextureManager::Inst()->LoadTexture("air.jpg",GL_BGR_EXT, GL_RGB);
     
     
     glutMainLoop();

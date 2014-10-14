@@ -295,10 +295,12 @@ class HeroStateJumping: public HeroStateBase {
                 //coordenadas de textura
             	glTexCoord2f(0.0f + xsprite*ipos, ysprite);            
                 glVertex3d(-50, 0, 0);
+
                 
                	glTexCoord2f(0.0f + xsprite*ipos, ysprite+0.25);
                 glVertex3d(-50, 100, 0);
 
+                
                	glTexCoord2f(xsprite*(ipos + 1.0), ysprite+0.25);
                 glVertex3d(0, 100, 0);
                 

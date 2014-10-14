@@ -64,7 +64,6 @@ GLvoid special_key(int key, int x, int y) {
             break;
 
         case 32:
-            printf("SPACE");
             hero_state_manager.get_state()->hit();
             break;
 

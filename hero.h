@@ -426,7 +426,6 @@ class HeroStateJumping: public HeroStateBase {
 
         }
         void recalculate_y() {
-            printf("hit base\n");
             HeroStateBase::recalculate_y();
             if (hit_base_object()) {
                 velocity = 5;

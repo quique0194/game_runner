@@ -29,7 +29,7 @@ void print(int x, int y,int z, char *string)
     //loop to display character by character
     for (int i = 0; i < len; i++) 
     {
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,string[i]);
+        // glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,string[i]);
     }
 }
 
